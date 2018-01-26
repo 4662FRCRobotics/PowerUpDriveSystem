@@ -21,7 +21,8 @@ public class ArcadeDrive extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.m_driveSubsystem.arcadeDrive(Robot.m_oi.m_driveStick.getY(), Robot.m_oi.m_driveStick.getZ());
+    	double throttle = 2 / (Robot.m_oi.m_driveStick.getThrottle() + 3.0);
+    	Robot.m_driveSubsystem.arcadeDrive(Robot.m_oi.m_driveStick.getY() * throttle, Robot.m_oi.m_driveStick.getZ() * throttle);
     }
 
     // Make this return true when this Command no longer needs to run execute()

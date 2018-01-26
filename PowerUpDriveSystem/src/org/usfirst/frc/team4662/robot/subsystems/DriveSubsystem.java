@@ -22,6 +22,8 @@ public class DriveSubsystem extends Subsystem {
 	private SpeedControllerGroup m_rightControlGroup;
 	private DifferentialDrive m_robotDrive;
 	
+	
+	
 	public DriveSubsystem() {
 		
 		m_leftController1 = new WPI_TalonSRX(Robot.m_robotMap.getPortNumber("leftController1"));
@@ -30,7 +32,10 @@ public class DriveSubsystem extends Subsystem {
 		m_rightController2 = new WPI_TalonSRX(Robot.m_robotMap.getPortNumber("rightController2"));
 		m_leftControlGroup = new SpeedControllerGroup(m_leftController1, m_leftController2);
 		m_rightControlGroup = new SpeedControllerGroup(m_rightController1, m_rightController2);
+		m_leftControlGroup.setInverted(false);
+		m_rightControlGroup.setInverted(false);
 		m_robotDrive = new DifferentialDrive(m_leftControlGroup, m_rightControlGroup);
+		
 		
 	}
 
@@ -44,7 +49,7 @@ public class DriveSubsystem extends Subsystem {
     }
     
     public void arcadeDrive(double throttle, double turn) {
-    	m_robotDrive.arcadeDrive(throttle, turn);
+    	m_robotDrive.arcadeDrive(throttle * -1, turn);
     }
 }
 
