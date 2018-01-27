@@ -7,7 +7,10 @@
 
 package org.usfirst.frc.team4662.robot;
 
+import org.usfirst.frc.team4662.robot.commands.TurnAnglePID;
+
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -44,6 +47,8 @@ public class OI {
 	public Joystick m_driveStick;
 	
 	public OI() {
+		
+		SmartDashboard.putData("PIDTest", new TurnAnglePID());
 		
 		m_driveStick = new Joystick(0);
 	}

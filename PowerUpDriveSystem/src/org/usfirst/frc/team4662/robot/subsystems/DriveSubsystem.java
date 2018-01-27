@@ -33,6 +33,8 @@ public class DriveSubsystem extends Subsystem {
 	private double m_dTurnAngleP;
 	private double m_dTurnAngleI;
 	private double m_dTurnAngleD;
+	private double m_dTurnAngleTolerance;
+	private double m_dAngle;
 	
 	public DriveSubsystem() {
 		
@@ -51,8 +53,10 @@ public class DriveSubsystem extends Subsystem {
 		m_dTurnAngleI = Robot.m_robotMap.getPIDIVal("TurnAngle", 0.4);
 		m_dTurnAngleD = Robot.m_robotMap.getPIDDVal("TurnAngle", 0.4);
 		m_turnAngle = new PIDController(m_dTurnAngleP, m_dTurnAngleI, m_dTurnAngleD, new getSourceAngle(), new putOutputTurn() );
+		m_dTurnAngleTolerance = Robot.m_robotMap.getPIDToleranceVal("TurnAngle", 2);
 	}
 
+	
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
 
@@ -69,11 +73,39 @@ public class DriveSubsystem extends Subsystem {
     
     private void smartDashBoardDiplay() {
     	SmartDashboard.putNumber("navxGyro", m_AHRSnavX.getAngle() );
+    	SmartDashboard.putNumber("TurnAngle", 0);
     }
     
     private double getGyroAngle() {
     	return m_AHRSnavX.getAngle();
     }
+    
+    public void disableTurnAngle() {
+    	m_turnAngle.disable();
+    }
+    
+    public void setTurnAngle(double angle) {
+    	m_turnAngle.reset();
+    	m_AHRSnavX.zeroYaw();
+    	m_turnAngle.setInputRange(-180.0f, 180.0f);
+    	m_turnAngle.setOutputRange(-0.75, 0.75);
+    	m_turnAngle.setPID(m_dTurnAngleP, m_dTurnAngleI, m_dTurnAngleD);
+    	m_turnAngle.setAbsoluteTolerance(m_dTurnAngleTolerance);
+    	m_turnAngle.setContinuous(true);
+    	m_turnAngle.setSetpoint(angle);
+    	m_turnAngle.enable();
+    }
+    
+    public boolean turnAngleOnTarget() {
+    	return m_turnAngle.onTarget();
+    }
+    
+    //NOT WORKING
+    public double getDashboardAngle() {
+    	//m_dAngle = SmartDashboard.getNumber("TurnAngle", m_dAngle);
+    	return 20;
+    }
+    //NOT WORKING
     
     private class getSourceAngle implements PIDSource {
 
