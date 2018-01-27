@@ -4,10 +4,17 @@ import org.usfirst.frc.team4662.robot.Robot;
 import org.usfirst.frc.team4662.robot.commands.ArcadeDrive;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -21,8 +28,11 @@ public class DriveSubsystem extends Subsystem {
 	private SpeedControllerGroup m_leftControlGroup;
 	private SpeedControllerGroup m_rightControlGroup;
 	private DifferentialDrive m_robotDrive;
-	
-	
+	private AHRS m_AHRSnavX;
+	private PIDController m_turnAngle;
+	private double m_dTurnAngleP;
+	private double m_dTurnAngleI;
+	private double m_dTurnAngleD;
 	
 	public DriveSubsystem() {
 		
@@ -36,7 +46,11 @@ public class DriveSubsystem extends Subsystem {
 		m_rightControlGroup.setInverted(false);
 		m_robotDrive = new DifferentialDrive(m_leftControlGroup, m_rightControlGroup);
 		
-		
+		m_AHRSnavX = new AHRS(SPI.Port.kMXP);
+		m_dTurnAngleP = Robot.m_robotMap.getPIDPVal("TurnAngle", 0.2);
+		m_dTurnAngleI = Robot.m_robotMap.getPIDIVal("TurnAngle", 0.4);
+		m_dTurnAngleD = Robot.m_robotMap.getPIDDVal("TurnAngle", 0.4);
+		m_turnAngle = new PIDController(m_dTurnAngleP, m_dTurnAngleI, m_dTurnAngleD, new getSourceAngle(), new putOutputTurn() );
 	}
 
     // Put methods for controlling this subsystem
@@ -50,6 +64,47 @@ public class DriveSubsystem extends Subsystem {
     
     public void arcadeDrive(double throttle, double turn) {
     	m_robotDrive.arcadeDrive(throttle * -1, turn);
+    	smartDashBoardDiplay();
+    }
+    
+    private void smartDashBoardDiplay() {
+    	SmartDashboard.putNumber("navxGyro", m_AHRSnavX.getAngle() );
+    }
+    
+    private double getGyroAngle() {
+    	return m_AHRSnavX.getAngle();
+    }
+    
+    private class getSourceAngle implements PIDSource {
+
+		@Override
+		public void setPIDSourceType(PIDSourceType pidSource) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public PIDSourceType getPIDSourceType() {
+			// TODO Auto-generated method stub
+			return PIDSourceType.kDisplacement;
+		}
+
+		@Override
+		public double pidGet() {
+			// TODO Auto-generated method stub
+			return getGyroAngle();
+		}
+    	
+    }
+    
+    private class putOutputTurn implements PIDOutput {
+
+		@Override
+		public void pidWrite(double output) {
+			// TODO Auto-generated method stub
+			arcadeDrive(0, output);
+		}
+    	
     }
 }
 
