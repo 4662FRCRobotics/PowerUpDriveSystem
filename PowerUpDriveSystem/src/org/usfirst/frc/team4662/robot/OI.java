@@ -10,6 +10,7 @@ package org.usfirst.frc.team4662.robot;
 import org.usfirst.frc.team4662.robot.commands.TurnAnglePID;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -45,11 +46,13 @@ public class OI {
 	// until it is finished as determined by it's isFinished method.
 	// button.whenReleased(new ExampleCommand());
 	public Joystick m_driveStick;
+	public JoystickButton m_keepHeading;
 	
 	public OI() {
 		
 		SmartDashboard.putData("PIDTest", new TurnAnglePID());
 		
 		m_driveStick = new Joystick(0);
+		m_keepHeading = new JoystickButton(m_driveStick,2);
 	}
 }
