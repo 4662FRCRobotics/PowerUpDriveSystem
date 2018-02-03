@@ -70,8 +70,13 @@ public class DriveSubsystem extends Subsystem {
 		m_rightControlGroup.setInverted(false);
 		m_robotDrive = new DifferentialDrive(m_leftControlGroup, m_rightControlGroup);
 		
-		m_leftController1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 1, 100);
-		m_rightController1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 1, 100);
+		m_leftController1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+		m_rightController1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+		m_leftController1.setSensorPhase(true);
+		m_rightController1.setSensorPhase(true);
+		m_leftController1.setInverted(false);
+		m_rightController1.setInverted(true);
+		
 		//instantiation for drive a distance	
 		m_dDriveDistanceP = Robot.m_robotMap.getPIDPVal("DriveDistance", 0.2);
 		m_dDriveDistanceI = Robot.m_robotMap.getPIDIVal("DriveDistance", 0.0);
@@ -134,6 +139,8 @@ public class DriveSubsystem extends Subsystem {
     	
 		double pidEncoderTarget = distance / (m_dWheelDiameter * Math.PI) * m_dEncoderPulseCnt * m_dMotorToAxleReduction;
 		m_DriveDistance.reset();
+		m_leftController1.setSelectedSensorPosition(0, 0, 10);
+		m_rightController1.setSelectedSensorPosition(0, 0, 10);
 		//0 encoders
 		m_DriveDistance.setInputRange(-Math.abs(pidEncoderTarget), Math.abs(pidEncoderTarget));
 		m_DriveDistance.setOutputRange(-1, 1);
