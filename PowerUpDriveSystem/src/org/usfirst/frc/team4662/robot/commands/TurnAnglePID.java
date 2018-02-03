@@ -11,23 +11,25 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class TurnAnglePID extends Command {
 
 	private double m_dAngle;
+	private boolean m_bIsDashboard;
 	
     public TurnAnglePID(double angle) {
-        // Use requires() here to declare subsystem dependencies
-        // eg. requires(chassis);
     	requires(Robot.m_driveSubsystem);
     	m_dAngle = angle;
-    	SmartDashboard.putNumber("TurnAngle", m_dAngle);
+    	m_bIsDashboard = false;
     }
     
     public TurnAnglePID() {
     	requires(Robot.m_driveSubsystem);
-    	m_dAngle = Robot.m_driveSubsystem.getDashboardAngle();
+    	SmartDashboard.putNumber("TurnAngleTest", 0);
+    	m_bIsDashboard = true;
     }
 
     // Called just before this Command runs the first time
     protected void initialize() {
-    	m_dAngle = Robot.m_driveSubsystem.getDashboardAngle();
+    	if ( m_bIsDashboard ) {
+    		m_dAngle = Robot.m_driveSubsystem.getDashboardAngle();
+    	}
     	Robot.m_driveSubsystem.setTurnAngle(m_dAngle);
     }
 

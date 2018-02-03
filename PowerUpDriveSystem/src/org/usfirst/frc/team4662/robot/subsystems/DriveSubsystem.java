@@ -187,7 +187,7 @@ public class DriveSubsystem extends Subsystem {
     
     //gets the turn angle from the dashboard
     public double getDashboardAngle() {
-    	double dAngle = SmartDashboard.getNumber("TurnAngle", m_dAngle);
+    	double dAngle = SmartDashboard.getNumber("TurnAngleTest", m_dAngle);
     	SmartDashboard.putNumber("TurnAngleTest", dAngle);
     	return dAngle;
     }
