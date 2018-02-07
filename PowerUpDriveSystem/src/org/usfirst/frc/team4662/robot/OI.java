@@ -31,5 +31,6 @@ public class OI {
 		
 		m_driveStick = new Joystick(0);
 		m_keepHeading = new JoystickButton(m_driveStick,2);
+		m_keepHeading.whileHeld(new KeepHeadingPID());
 	}
 }
