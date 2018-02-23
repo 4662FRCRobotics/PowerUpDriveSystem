@@ -36,6 +36,7 @@ public class DriveSubsystem extends Subsystem {
 	private double m_dDriveDistanceD;
 	private double m_dDriveDistanceTolerance;
 	private double m_dDistance;
+	private double m_dDriveDistanceSpeed;
 	private double m_dMotorToAxleReduction;
 	private double m_dWheelDiameter;
 	private double m_dEncoderPulseCnt;
@@ -70,22 +71,24 @@ public class DriveSubsystem extends Subsystem {
 		m_rightControlGroup.setInverted(false);
 		m_robotDrive = new DifferentialDrive(m_leftControlGroup, m_rightControlGroup);
 		
-		m_leftController1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
-		m_rightController1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+		m_leftController1.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+		m_rightController2.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
 		m_leftController1.setSensorPhase(true);
-		m_rightController1.setSensorPhase(true);
-		m_leftController1.setInverted(false);
-		m_rightController1.setInverted(true);
+		m_rightController2.setSensorPhase(false);		
 		
 		//instantiation for drive a distance	
+		m_dDistance = 0;
 		m_dDriveDistanceP = Robot.m_robotMap.getPIDPVal("DriveDistance", 0.2);
 		m_dDriveDistanceI = Robot.m_robotMap.getPIDIVal("DriveDistance", 0.0);
 		m_dDriveDistanceD = Robot.m_robotMap.getPIDDVal("DriveDistance", 0.4);
-		m_DriveDistance = new PIDController(m_dDriveDistanceP, m_dDriveDistanceI, m_dDriveDistanceD, new getSourceAngle(), new putOutputTurn() );
+		m_DriveDistance = new PIDController(m_dDriveDistanceP, m_dDriveDistanceI, m_dDriveDistanceD, new getLeftEncoder(), new putDriveDistance() );
 		m_dDriveDistanceTolerance = Robot.m_robotMap.getPIDToleranceVal("DriveDistance", 2);
-		m_dEncoderPulseCnt = 20;
-		m_dMotorToAxleReduction = 36;
-		m_dWheelDiameter = 4.0;
+		m_dDriveDistanceSpeed = 0.5;
+		m_dEncoderPulseCnt = 20 * 2 * 2;
+		// 2 channel quadrature output with 20 pulses per channel per revolution for sensing speed and direction.
+		//times 2 for rise and fall for pulse
+		m_dMotorToAxleReduction = ( 50/12 ) * ( 40/34 );
+		m_dWheelDiameter = 6.0;
 		
 		//instantiation for turn to angle
 		m_AHRSnavX = new AHRS(SPI.Port.kMXP);
@@ -115,11 +118,13 @@ public class DriveSubsystem extends Subsystem {
     	double dDriveInvert = 1;
     	m_robotDrive.arcadeDrive(throttle * dDriveInvert, turn);
     	smartDashBoardDiplay();
+    	
     }
     
     private void smartDashBoardDiplay() {
     	SmartDashboard.putNumber("navxGyro", m_AHRSnavX.getAngle() );
-    	
+    	SmartDashboard.putNumber("leftencoder", m_leftController1.getSelectedSensorPosition(0));
+    	SmartDashboard.putNumber("rightencoder", m_rightController2.getSelectedSensorPosition(0));
     }
     
     //get gyroscope angle 
@@ -130,6 +135,18 @@ public class DriveSubsystem extends Subsystem {
     //******************************************************************************
     //this block is for the drive distance pid control
     //******************************************************************************
+    public double getDashboardDistance() {
+    	if ( Robot.m_robotMap.isDashboardTest()) {
+    		m_dDistance = SmartDashboard.getNumber("DriveDistance", m_dDistance);
+        	m_dDriveDistanceP = SmartDashboard.getNumber("DriveDistanceP", 0.2);
+    		m_dDriveDistanceI = SmartDashboard.getNumber("DriveDistanceI", 0.0);
+    		m_dDriveDistanceD = SmartDashboard.getNumber("DriveDistanceD", 0.4);
+    		m_dDriveDistanceTolerance = SmartDashboard.getNumber("DriveDistanceTolerance", 2);
+    		m_dDriveDistanceSpeed = SmartDashboard.getNumber("DriveDistanceSpeed", 0.5);
+    	}
+    	
+    	return m_dDistance;
+    }
     
     public void disableDriveDistance() {
     	m_DriveDistance.disable();
@@ -137,13 +154,14 @@ public class DriveSubsystem extends Subsystem {
     
     public void setDriveDistance(double distance) {
     	
-		double pidEncoderTarget = distance / (m_dWheelDiameter * Math.PI) * m_dEncoderPulseCnt * m_dMotorToAxleReduction;
+		double pidEncoderTarget = -12 * distance * m_dEncoderPulseCnt * m_dMotorToAxleReduction / (m_dWheelDiameter * Math.PI);
+		SmartDashboard.putNumber("Encoder target", pidEncoderTarget);
 		m_DriveDistance.reset();
-		m_leftController1.setSelectedSensorPosition(0, 0, 10);
-		m_rightController1.setSelectedSensorPosition(0, 0, 10);
+		m_leftController1.setSelectedSensorPosition(0, 0, 0);
+		m_rightController1.setSelectedSensorPosition(0, 0, 0);
 		//0 encoders
 		m_DriveDistance.setInputRange(-Math.abs(pidEncoderTarget), Math.abs(pidEncoderTarget));
-		m_DriveDistance.setOutputRange(-1, 1);
+		m_DriveDistance.setOutputRange(-m_dDriveDistanceSpeed , m_dDriveDistanceSpeed);
 		m_DriveDistance.setPID(m_dDriveDistanceP, m_dDriveDistanceI, m_dDriveDistanceD);
 		m_DriveDistance.setAbsoluteTolerance(m_dDriveDistanceTolerance);
 		m_DriveDistance.setContinuous(true);
@@ -187,9 +205,14 @@ public class DriveSubsystem extends Subsystem {
     
     //gets the turn angle from the dashboard
     public double getDashboardAngle() {
-    	double dAngle = SmartDashboard.getNumber("TurnAngleTest", m_dAngle);
-    	SmartDashboard.putNumber("TurnAngleTest", dAngle);
-    	return dAngle;
+    	if (Robot.m_robotMap.isDashboardTest()) {
+    		m_dTurnAngleP = SmartDashboard.getNumber("TurnAngleP", 0.2);
+    		m_dTurnAngleI = SmartDashboard.getNumber("TurnAngleI", 0.4);
+    		m_dTurnAngleD = SmartDashboard.getNumber("TurnAngleD", 0.4);
+    		m_dTurnAngleTolerance = SmartDashboard.getNumber("TurnAngleTolerance", 2);
+    		m_dAngle = SmartDashboard.getNumber("TurnAngleTest", m_dAngle);
+    	}
+    	return m_dAngle;
     }
     
     //******************************************************************************

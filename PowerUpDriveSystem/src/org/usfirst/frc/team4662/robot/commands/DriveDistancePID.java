@@ -32,7 +32,7 @@ public class DriveDistancePID extends Command {
     // Called just before this Command runs the first time
     protected void initialize() {
     	if ( m_bIsDashboard ) {
-    		SmartDashboard.getNumber("DriveDistance", m_dDistance);
+    		m_dDistance = Robot.m_driveSubsystem.getDashboardDistance();
     	}
     	Robot.m_driveSubsystem.setDriveDistance(m_dDistance);
     }
