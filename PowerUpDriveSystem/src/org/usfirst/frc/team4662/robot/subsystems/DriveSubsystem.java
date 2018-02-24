@@ -89,6 +89,7 @@ public class DriveSubsystem extends Subsystem {
 		//times 2 for rise and fall for pulse
 		m_dMotorToAxleReduction = ( 50/12 ) * ( 40/34 );
 		m_dWheelDiameter = 6.0;
+		m_dDistance = getDashboardDistance();
 		
 		//instantiation for turn to angle
 		m_AHRSnavX = new AHRS(SPI.Port.kMXP);
@@ -98,7 +99,8 @@ public class DriveSubsystem extends Subsystem {
 		m_turnAngle = new PIDController(m_dTurnAngleP, m_dTurnAngleI, m_dTurnAngleD, new getSourceAngle(), new putOutputTurn() );
 		m_dTurnAngleTolerance = Robot.m_robotMap.getPIDToleranceVal("TurnAngle", 2);
 		m_dAngle = 0;
-		SmartDashboard.putNumber("TurnAngle", m_dAngle);
+		m_dAngle = getDashboardAngle();
+		
 		//instantiation for keepheading
 		m_dkeepHeadingP = Robot.m_robotMap.getPIDPVal("keepHeading", 0.2);
 		m_dkeepHeadingI = Robot.m_robotMap.getPIDIVal("keepHeading", 0.0);
@@ -138,11 +140,17 @@ public class DriveSubsystem extends Subsystem {
     public double getDashboardDistance() {
     	if ( Robot.m_robotMap.isDashboardTest()) {
     		m_dDistance = SmartDashboard.getNumber("DriveDistance", m_dDistance);
-        	m_dDriveDistanceP = SmartDashboard.getNumber("DriveDistanceP", 0.2);
-    		m_dDriveDistanceI = SmartDashboard.getNumber("DriveDistanceI", 0.0);
-    		m_dDriveDistanceD = SmartDashboard.getNumber("DriveDistanceD", 0.4);
-    		m_dDriveDistanceTolerance = SmartDashboard.getNumber("DriveDistanceTolerance", 2);
-    		m_dDriveDistanceSpeed = SmartDashboard.getNumber("DriveDistanceSpeed", 0.5);
+        	m_dDriveDistanceP = SmartDashboard.getNumber("DriveDistanceP", m_dDriveDistanceP);
+    		m_dDriveDistanceI = SmartDashboard.getNumber("DriveDistanceI", m_dDriveDistanceI);
+    		m_dDriveDistanceD = SmartDashboard.getNumber("DriveDistanceD", m_dDriveDistanceD);
+    		m_dDriveDistanceTolerance = SmartDashboard.getNumber("DriveDistanceTolerance", m_dDriveDistanceTolerance);
+    		m_dDriveDistanceSpeed = SmartDashboard.getNumber("DriveDistanceSpeed", m_dDriveDistanceSpeed);
+    		SmartDashboard.putNumber("DriveDistance", m_dDistance);
+        	SmartDashboard.putNumber("DriveDistanceP", m_dDriveDistanceP);
+    		SmartDashboard.putNumber("DriveDistanceI", m_dDriveDistanceI);
+    		SmartDashboard.putNumber("DriveDistanceD", m_dDriveDistanceD);
+    		SmartDashboard.putNumber("DriveDistanceTolerance", m_dDriveDistanceTolerance);
+    		SmartDashboard.putNumber("DriveDistanceSpeed", m_dDriveDistanceSpeed);
     	}
     	
     	return m_dDistance;
@@ -206,11 +214,16 @@ public class DriveSubsystem extends Subsystem {
     //gets the turn angle from the dashboard
     public double getDashboardAngle() {
     	if (Robot.m_robotMap.isDashboardTest()) {
-    		m_dTurnAngleP = SmartDashboard.getNumber("TurnAngleP", 0.2);
-    		m_dTurnAngleI = SmartDashboard.getNumber("TurnAngleI", 0.4);
-    		m_dTurnAngleD = SmartDashboard.getNumber("TurnAngleD", 0.4);
-    		m_dTurnAngleTolerance = SmartDashboard.getNumber("TurnAngleTolerance", 2);
+    		m_dTurnAngleP = SmartDashboard.getNumber("TurnAngleP", m_dTurnAngleP);
+    		m_dTurnAngleI = SmartDashboard.getNumber("TurnAngleI", m_dTurnAngleI);
+    		m_dTurnAngleD = SmartDashboard.getNumber("TurnAngleD", m_dTurnAngleD);
+    		m_dTurnAngleTolerance = SmartDashboard.getNumber("TurnAngleTolerance", m_dTurnAngleTolerance);
     		m_dAngle = SmartDashboard.getNumber("TurnAngleTest", m_dAngle);
+    		SmartDashboard.putNumber("TurnAngleP", m_dTurnAngleP);
+    		SmartDashboard.putNumber("TurnAngleI", m_dTurnAngleI);
+    		SmartDashboard.putNumber("TurnAngleD", m_dTurnAngleD);
+    		SmartDashboard.putNumber("TurnAngleTolerance", m_dTurnAngleTolerance);
+    		SmartDashboard.putNumber("TurnAngleTest", m_dAngle);
     	}
     	return m_dAngle;
     }
