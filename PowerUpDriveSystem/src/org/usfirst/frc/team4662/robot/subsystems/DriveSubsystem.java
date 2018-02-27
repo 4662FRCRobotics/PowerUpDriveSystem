@@ -166,7 +166,7 @@ public class DriveSubsystem extends Subsystem {
 		SmartDashboard.putNumber("Encoder target", pidEncoderTarget);
 		m_DriveDistance.reset();
 		m_leftController1.setSelectedSensorPosition(0, 0, 0);
-		m_rightController1.setSelectedSensorPosition(0, 0, 0);
+		m_rightController2.setSelectedSensorPosition(0, 0, 0);
 		//0 encoders
 		m_DriveDistance.setInputRange(-Math.abs(pidEncoderTarget), Math.abs(pidEncoderTarget));
 		m_DriveDistance.setOutputRange(-m_dDriveDistanceSpeed , m_dDriveDistanceSpeed);
@@ -321,7 +321,7 @@ public class DriveSubsystem extends Subsystem {
 
 		@Override
 		public void pidWrite(double output) {
-			arcadeDrive(output, 0);
+			arcadeDrive(output, m_dSteeringHeading);
 			// TODO Auto-generated method stub
 			
 		}

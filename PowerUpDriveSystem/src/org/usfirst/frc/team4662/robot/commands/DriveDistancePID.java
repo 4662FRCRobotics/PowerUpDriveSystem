@@ -34,6 +34,7 @@ public class DriveDistancePID extends Command {
     	if ( m_bIsDashboard ) {
     		m_dDistance = Robot.m_driveSubsystem.getDashboardDistance();
     	}
+    	Robot.m_driveSubsystem.setKeepHeading();
     	Robot.m_driveSubsystem.setDriveDistance(m_dDistance);
     }
 
@@ -49,6 +50,7 @@ public class DriveDistancePID extends Command {
     // Called once after isFinished returns true
     protected void end() {
     	Robot.m_driveSubsystem.disableDriveDistance();
+    	Robot.m_driveSubsystem.disableKeepHeading();
     	Robot.m_driveSubsystem.arcadeDrive(0, 0);
     }
 
